@@ -1,0 +1,4 @@
+sim/
+waves/
+*.out
+*.vcd
