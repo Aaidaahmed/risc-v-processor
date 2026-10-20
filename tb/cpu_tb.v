@@ -68,7 +68,7 @@ initial
 begin 
     $dumpfile("waves/cpu.vcd");
     $dumpvars(0,cpu_tb);
-    #100;
+    #40;
 
     $display("\n===== PERFORMANCE COUNTERS =====");
 
