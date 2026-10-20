@@ -36,7 +36,11 @@ module decoder(
     //PC controls
     output reg branch,
     output reg jump,
-    output reg jump_reg
+    output reg jump_reg,
+
+    // 0000
+    output reg [1:0] mem_size,
+    output reg load_unsigned
 );
 
 /*Instruction
@@ -125,6 +129,9 @@ always@(*)begin
     branch    = 1'b0;
     jump      = 1'b0;
     jump_reg  = 1'b0;
+
+    mem_size = `MEM_WORD;
+    load_unsigned = 1'b0;
 
     //CASE
     case(opcode)
@@ -253,6 +260,35 @@ always@(*)begin
         imm_type = `IMM_I;
 
         alu_op = `ALU_ADD;
+
+        mem_size = `MEM_WORD;
+
+        case (funct3)
+        3'b000: begin // LB
+            mem_size = `MEM_BYTE;
+            load_unsigned = 1'b0;
+        end
+        3'b001: begin // LH
+            mem_size = `MEM_HALFWORD;
+            load_unsigned = 1'b0;
+        end
+        3'b010: begin // LW
+            mem_size = `MEM_WORD;
+            load_unsigned = 1'b0;
+        end
+        3'b100: begin // LBU
+            mem_size = `MEM_BYTE;
+            load_unsigned = 1'b1;
+        end
+        3'b101: begin // LHU
+            mem_size = `MEM_HALFWORD;
+            load_unsigned = 1'b1;
+        end
+        default: begin
+            mem_read = 1'b0;
+            reg_write = 1'b0;
+        end
+    endcase
     end
 
     //J - TYPE
@@ -314,7 +350,15 @@ always@(*)begin
         imm_type = `IMM_S;
 
         alu_op = `ALU_ADD;
-    end
+
+        case (funct3)
+        3'b000: mem_size = `MEM_BYTE;      // SB
+        3'b001: mem_size = `MEM_HALFWORD;  // SH
+        3'b010: mem_size = `MEM_WORD;      // SW
+        default: mem_write = 1'b0;
+    endcase
+end
+
 
     `OPCODE_CUSTOM: 
     begin

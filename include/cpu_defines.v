@@ -58,3 +58,11 @@
 
 `define MAC_FUNCT7 7'b0000001
 `define MAC_FUNCT3 3'b000
+
+//---------------------------------------------
+//2 bit ACCESS SIZE ENCODINGS
+//---------------------------------------------
+
+`define MEM_BYTE      2'b00
+`define MEM_HALFWORD  2'b01
+`define MEM_WORD      2'b10

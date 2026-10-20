@@ -39,6 +39,8 @@ wire mem_read;
 wire [2:0]wb_sel;
 wire branch;
 wire jump;
+wire [1:0] mem_size;
+wire load_unsigned;
 
 decoder DEC(
     .instruction(instruction),
@@ -57,7 +59,10 @@ decoder DEC(
 
     .branch(branch),
     .jump(jump),
-    .jump_reg(jump_reg)
+    .jump_reg(jump_reg),
+
+    .mem_size(mem_size),
+    .load_unsigned(load_unsigned)
 );
 
 
@@ -112,9 +117,22 @@ wire [31:0]memory_data;
 reg [31:0]write_data;
 wire mem_write_dm;
 wire mem_read_dm;
+wire [31:0]load_result;
+
 
 assign mem_write_dm = mem_write && !gpio_selected;
 assign mem_read_dm = mem_read && !gpio_selected;
+
+
+assign load_result =
+    (mem_size == `MEM_BYTE) ?
+        (load_unsigned ? {24'b0, memory_data[7:0]} :
+                         {{24{memory_data[7]}}, memory_data[7:0]}) :
+    (mem_size == `MEM_HALFWORD) ?
+        (load_unsigned ? {16'b0, memory_data[15:0]} :
+                         {{16{memory_data[15]}}, memory_data[15:0]}) :
+        memory_data;
+
 
 
 data_memory DM(
@@ -122,7 +140,8 @@ data_memory DM(
     .address(alu_result),
     .write_data(read_data2),
     .write_enable(mem_write_dm),
-    .read_data(memory_data)
+    .read_data(memory_data),
+    .mem_size(mem_size)
 );
 
 wire branch_taken;
@@ -151,7 +170,7 @@ always @(*)begin
                 if(gpio_selected)
                     write_data = gpio_read_data;
                 else
-                    write_data = memory_data;
+                    write_data = load_result;
             end
         `WB_IMM:
             write_data = immediate;
