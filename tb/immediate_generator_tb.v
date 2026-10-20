@@ -20,16 +20,16 @@ end
 
 task check_immediate_generator;
     input [31:0]expected_immediate;
-    input [20*8-1:0]type;
+    input [20*8-1:0]tst_name;
 
     begin
         if(expected_immediate != immediate)
         begin
-            $display("FAIL: %s Expected = %h Got = %h", type, expected_immediate, immediate);
+            $display("FAIL: %s Expected = %h Got = %h", tst_name, expected_immediate, immediate);
         end
         else
         begin
-            $display("PASS: %s Expected = %h Got = %h", type, expected_immediate, immediate);
+            $display("PASS: %s Expected = %h Got = %h", tst_name, expected_immediate, immediate);
         end
     end
 endtask
