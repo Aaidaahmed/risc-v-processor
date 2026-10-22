@@ -40,7 +40,7 @@ begin
         if(mem_write)
             store_counter <= store_counter + 1;
         if(branch_taken)
-            branch_counter <= branch_taken + 1;
+            branch_counter <= branch_counter + 1;
         if(mac_executed)
             mac_counter <= mac_counter + 1;
     end

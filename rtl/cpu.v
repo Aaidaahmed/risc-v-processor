@@ -159,7 +159,7 @@ branch_unit BU(
 wire [31:0]branch_address;
 assign branch_address = pc_out + immediate;
 
-assign next_pc = (branch && branch_taken) ? branch_address : (jump) ? branch_address : jump_reg ? alu_result : (pc_out + 4);
+assign next_pc = (branch && branch_taken) ? branch_address : (jump) ? branch_address : jump_reg ? {alu_result[31:1], 1'b0}  : (pc_out + 4);
 
 always @(*)begin
     case(wb_sel)

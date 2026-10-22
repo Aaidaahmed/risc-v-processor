@@ -206,7 +206,10 @@ always@(*)begin
             end
             3'b001:
             begin
-                alu_op = `ALU_SLL;
+                if (funct7 == 7'b0000000)
+                    alu_op = `ALU_SLL;
+                else
+                    reg_write = 1'b0;
             end
             3'b010:
             begin
@@ -232,9 +235,7 @@ always@(*)begin
                     alu_op = `ALU_SRA;
                 end
                 default:
-                begin
-                    //ILLEGAL INSTRUCTIONS
-                end
+                    reg_write = 1'b0;
             endcase
             end
             3'b110:
@@ -309,7 +310,7 @@ always@(*)begin
         alu_src = 1'b1;
 
         alu_op = `ALU_ADD;
-        wb_sel = `WB_ALU;
+        wb_sel = `WB_PC4;
     end
     //U - TYPE
     7'b0010111: 
