@@ -126,3 +126,71 @@ The CPU testbench currently verifies the following load and store instructions.
 | MAC operations | 0 |
 
 These results reflect the current testbench
+
+
+
+
+
+## Demo: Load Word Instruction
+
+This animated walkthrough follows `LW x10, 0(x1)` through the processor,
+from instruction fetch to register write-back.
+
+![Step-by-step animation of the LW instruction](docs/demo/lw_instruction_journey.gif)
+
+**Instruction:** `LW x5, 0(x1)`
+
+- **Fetch:** The PC identifies the instruction address.
+- **Decode:** The decoder identifies the load operation.
+- **Read operands:** The register file supplies `x1`; the immediate generator extracts the offset.
+- **Calculate address:** The ALU computes `x1 + offset`.
+- **Load:** Data memory returns the 32-bit word at the calculated address.
+- **Write-back:** The loaded word is written into `x5`.
+
+## At a glance
+
+🖥️ **Single-cycle RISC-V processor**  
+Verilog RTL · PC + instruction memory + decode + execute + write-back
+
+---
+
+🧮 **Custom multiply-accumulate instruction**
+
+`rd ← rd + (rs1 × rs2)`
+
+Custom opcode · Dedicated execution logic · MAC result selection at write-back
+
+---
+
+💾 **Load/store datapath**
+
+`LB`, `LBU`, `LH`, `LHU`, `LW` · Byte/halfword/word stores · Load sign or zero extension
+
+---
+
+🔌 **Memory-mapped GPIO**
+
+Output address: `0x10000000` · Input address: `0x10000004`
+
+---
+
+📊 **Internal performance counters**
+
+Cycle · Instruction · Load · Store · Branch · MAC
+
+---
+
+🔀 **Control-flow handling**
+
+Conditional branches · JAL · JALR · Next-PC selection and link-register write-back
+
+
+## 🏗️ Architecture
+
+The processor uses a single-cycle datapath with instruction fetch, decode, execution, memory access, and write-back logic.
+
+![RV32I RISC-V Processor Architecture](docs/images/cpu_architecture.png)
+
+> **Note:** The architecture diagram is a work in progress and will be refined to improve signal routing, arrow clarity, and alignment with the RTL implementation.
+
+
