@@ -131,21 +131,22 @@ These results reflect the current testbench
 
 
 
-## Demo: Load Word Instruction
 
-This animated walkthrough follows `LW x10, 0(x1)` through the processor,
-from instruction fetch to register write-back.
+## 🎬 Demo: Load Word Instruction
 
-![Step-by-step animation of the LW instruction](docs/demo/lw_instruction_journey.gif)
+This animated walkthrough follows `LW x10, 0(x1)` through the processor, from instruction fetch to register write-back.
 
-**Instruction:** `LW x5, 0(x1)`
+![Animated walkthrough of the LW instruction](docs/demo/lw_instruction_journey.gif)
 
-- **Fetch:** The PC identifies the instruction address.
-- **Decode:** The decoder identifies the load operation.
+**Instruction:** `LW x10, 0(x1)`
+
+- **Fetch:** The PC supplies the instruction address.
+- **Decode:** The decoder identifies the load operation and destination register.
 - **Read operands:** The register file supplies `x1`; the immediate generator extracts the offset.
 - **Calculate address:** The ALU computes `x1 + offset`.
 - **Load:** Data memory returns the 32-bit word at the calculated address.
-- **Write-back:** The loaded word is written into `x5`.
+- **Write-back:** The loaded word is written into `x10`.
+
 
 ## At a glance
 
