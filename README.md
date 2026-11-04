@@ -12,7 +12,43 @@ A Verilog RTL implementation of a single-cycle RISC-V processor featuring a cust
 - **Performance counters:** cycle, instruction, load, store, branch, and MAC event counts.
 - **Simulation-based verification:** testbench checks for load/store behavior and memory accesses using Icarus Verilog.
 
-## Repository Structure
+## Simulation Demo
+
+![RISC-V CPU Simulation](docs/demo/cpu_simulation.gif)
+
+*Animated summary of the Icarus Verilog simulation, including load/store
+test results and performance counters.*
+
+## 🏗️ Architecture
+
+The processor uses a single-cycle datapath with instruction fetch, decode, execution, memory access, and write-back logic.
+
+![RV32I RISC-V Processor Architecture](docs/images/cpu_architecture.png)
+
+> **Note:** The architecture diagram is a work in progress and will be refined to improve signal routing, arrow clarity, and alignment with the RTL implementation.
+
+## 🎬 Demo: Load Word Instruction
+
+This animated walkthrough follows `LW x10, 0(x1)` through the processor, from instruction fetch to register write-back.
+
+![Animated walkthrough of the LW instruction](docs/demo/lw_instruction_journey.gif)
+
+**Instruction:** `LW x10, 0(x1)`
+
+- **Fetch:** The PC supplies the instruction address.
+- **Decode:** The decoder identifies the load operation and destination register.
+- **Read operands:** The register file supplies `x1`; the immediate generator extracts the offset.
+- **Calculate address:** The ALU computes `x1 + offset`.
+- **Load:** Data memory returns the 32-bit word at the calculated address.
+- **Write-back:** The loaded word is written into `x10`.
+
+## CPU Execution Waveform
+
+The waveform below shows instruction execution in the single-cycle datapath, including program-counter progression, instruction fetch, ALU results, and memory read/write control signals.
+
+![CPU execution waveform](docs/waveforms/cpu_execution2.png)
+
+## 📁 Repository Structure
 
 ```text
 risc-v-processor/
@@ -32,18 +68,51 @@ risc-v-processor/
 │   ├── program_counter.v
 │   └── register_file.v
 ├── tb/
+│   ├── alu_tb.v
+│   ├── branch_unit_tb.v
 │   ├── cpu_tb.v
+│   ├── csr_unit_tb.v
 │   ├── data_memory_tb.v
+│   ├── decoder_tb.v
+│   ├── gpio_demo_tb.v
+│   ├── immediate_generator_tb.v
+│   ├── instruction_memory_tb.v
+│   ├── program_counter_tb.v
+│   ├── register_file_tb.v
 │   └── ...
+├── sim/
+│   ├── cpu_test
+│   ├── gpio_demo
+│   ├── regression.log
+│   └── ...
+├── waves/
+│   ├── cpu.vcd
+│   ├── gpio_demo.vcd
+│   ├── alu.vcd
+│   ├── decoder.vcd
+│   ├── data_memory.vcd
+│   ├── instruction_memory.vcd
+│   ├── program_counter.vcd
+│   ├── register_file.vcd
+│   ├── immediate_generator.vcd
+│   └── cpu_execution.gtkw
 ├── docs/
 │   ├── demo/
-│   │   └── cpu_simulation.gif
+│   │   ├── lw_instruction_journey.gif
+│   │   ├── cpu_simulation.gif
+│   │   ├── simulation_summary.txt
+│   │   ├── create_demo.sh
+│   │   └── make_gif.py
 │   ├── images/
-│   │   └── cpu_architecture.png
+│   │   ├── cpu_architecture.png
+│   │   ├── cpu_architecture.svg
+│   │   ├── cpu_architecture.dot
+│   │   ├── gpio_waveform.png
+│   │   ├── mac_result.png
+│   │   └── performance_counters.png
 │   └── waveforms/
 │       ├── cpu_execution.png
 │       └── cpu_execution2.png
-├── sim/
 └── README.md
 ```
 
@@ -52,148 +121,11 @@ risc-v-processor/
 | Directory | Purpose |
 |---|---|
 | `rtl/` | Processor datapath, control, memory, GPIO and custom execution RTL |
-| `include/` | Instruction encodings, constants and shared definitions |
-| `tb/` | Module-level and CPU-level testbenches |
-| `sim/` | Compiled simulation executables |
-| `waves/` | Generated Value Change Dump (VCD) files |
-| `docs/` | Architecture diagram, waveform screenshots and demo GIF |
-
-
-## Simulation
-
-### Prerequisites
-
-- Icarus Verilog (`iverilog` and `vvp`)
-- GTKWave (optional, for waveform inspection)
-
-### Run the CPU testbench
-
-From the project root:
-
-```bash
-mkdir -p sim
-iverilog -g2012 -I include -s cpu_tb \
-  -o sim/cpu_test rtl/*.v tb/cpu_tb.v
-vvp sim/cpu_test
-```
-
-The current CPU testbench checks supported load and store operations and reports performance-counter values.
-
-### Open the waveform
-
-```bash
-gtkwave waves/cpu.vcd waves/cpu_execution2.gtkw
-```
-
-## Simulation Demo
-
-![RISC-V CPU Simulation](docs/demo/cpu_simulation.gif)
-
-*Animated summary of the Icarus Verilog simulation, including load/store
-test results and performance counters.*
-
-## Architecture
-
-The processor uses a single-cycle datapath with instruction fetch, decode, execution, memory access, and write-back logic.
-
-![RV32I RISC-V Processor Architecture](docs/images/cpu_architecture.png)
-
-## CPU Execution Waveform
-
-The waveform below shows instruction execution in the single-cycle datapath, including program-counter progression, instruction fetch, ALU results, and memory read/write control signals.
-
-![CPU execution waveform](docs/waveforms/cpu_execution2.png)
-
-## Verification Results
-
-The CPU testbench currently verifies the following load and store instructions.
-
-| Category | Instructions | Result |
-|---|---|---|
-| Loads | `LB`, `LBU`, `LH`, `LHU`, `LW` | 5/5 passed |
-| Stores | `SB`, `SH`, `SW` | Passed |
-| Memory | Byte, halfword, and word access checks | Passed in the current tests |
-
-**Sample simulation metrics**
-
-| Metric | Result |
-|---|---:|
-| Cycles | 13 |
-| Instructions | 9 |
-| Loads | 5 |
-| Stores | 3 |
-| Branches | 0 |
-| MAC operations | 0 |
-
-These results reflect the current testbench
-
-
-
-
-
-
-## 🎬 Demo: Load Word Instruction
-
-This animated walkthrough follows `LW x10, 0(x1)` through the processor, from instruction fetch to register write-back.
-
-![Animated walkthrough of the LW instruction](docs/demo/lw_instruction_journey.gif)
-
-**Instruction:** `LW x10, 0(x1)`
-
-- **Fetch:** The PC supplies the instruction address.
-- **Decode:** The decoder identifies the load operation and destination register.
-- **Read operands:** The register file supplies `x1`; the immediate generator extracts the offset.
-- **Calculate address:** The ALU computes `x1 + offset`.
-- **Load:** Data memory returns the 32-bit word at the calculated address.
-- **Write-back:** The loaded word is written into `x10`.
-
-
-## At a glance
-
-🖥️ **Single-cycle RISC-V processor**  
-Verilog RTL · PC + instruction memory + decode + execute + write-back
-
----
-
-🧮 **Custom multiply-accumulate instruction**
-
-`rd ← rd + (rs1 × rs2)`
-
-Custom opcode · Dedicated execution logic · MAC result selection at write-back
-
----
-
-💾 **Load/store datapath**
-
-`LB`, `LBU`, `LH`, `LHU`, `LW` · Byte/halfword/word stores · Load sign or zero extension
-
----
-
-🔌 **Memory-mapped GPIO**
-
-Output address: `0x10000000` · Input address: `0x10000004`
-
----
-
-📊 **Internal performance counters**
-
-Cycle · Instruction · Load · Store · Branch · MAC
-
----
-
-🔀 **Control-flow handling**
-
-Conditional branches · JAL · JALR · Next-PC selection and link-register write-back
-
-
-## 🏗️ Architecture
-
-The processor uses a single-cycle datapath with instruction fetch, decode, execution, memory access, and write-back logic.
-
-![RV32I RISC-V Processor Architecture](docs/images/cpu_architecture.png)
-
-> **Note:** The architecture diagram is a work in progress and will be refined to improve signal routing, arrow clarity, and alignment with the RTL implementation.
-
+| `include/` | Shared processor definitions and constants |
+| `tb/` | Module-level and CPU-level Verilog testbenches |
+| `sim/` | Compiled simulation executables and regression logs |
+| `waves/` | Generated VCD files and GTKWave session files |
+| `docs/` | Architecture diagrams, simulation waveforms and demonstration GIFs |
 
 ## 🧪 Verification & Testing
 
@@ -224,7 +156,7 @@ The test program produces the following GPIO output sequence:
 
 The waveform shows GPIO output updates during processor execution.
 
-![GPIO output waveform](docs/images/gpio_demo_waveform.png)
+![GPIO output waveform](docs/images/gpio_waveform.png)
 
 ### 🧮 Custom MAC Instruction Verification
 
@@ -242,7 +174,7 @@ The focused testbench verifies the following operation:
 
 The simulation confirms that `x6 = 10`.
 
-![Custom MAC instruction waveform](docs/images/mac_waveform.png)
+![Custom MAC instruction waveform](docs/images/mac_result.png)
 
 ### 📊 Performance Counter Verification
 
@@ -261,15 +193,60 @@ The waveform illustrates the counters incrementing during program execution.
 
 ![Performance counter waveform](docs/images/performance_counters.png)
 
+
+## ▶️ Running the Simulations
+
+This project uses Icarus Verilog for compilation and simulation, with GTKWave for waveform inspection.
+
+### Prerequisites
+
+- Icarus Verilog (`iverilog`, `vvp`)
+- GTKWave (optional, for waveform viewing)
+
+### CPU Regression Test
+
+```bash
+mkdir -p sim
+
+iverilog -g2012 -I include -s cpu_tb \
+  -o sim/cpu_test rtl/*.v tb/cpu_tb.v
+
+vvp sim/cpu_test
+```
+
+### GPIO Demonstration
+
+```bash
+iverilog -g2012 -I include -s gpio_demo_tb \
+  -o sim/gpio_demo rtl/*.v tb/gpio_demo_tb.v
+
+vvp sim/gpio_demo
+```
+
+### View Waveforms
+
+```bash
+gtkwave waves/gpio_demo.vcd
+```
+
+The simulation testbenches generate VCD waveform files in the `waves/` directory for inspection using GTKWave.
+
 ### ▶️ Run the Focused Demonstration
 
 ```bash
 iverilog -g2012 -I include -s gpio_demo_tb \
   -o sim/gpio_demo rtl/*.v tb/gpio_demo_tb.v && vvp sim/gpio_demo
 ```
+## 🛠️ Tools & Technologies
 
-**Simulation result:** `CPU + GPIO DEMO PASSED`
+| Category | Tools |
+|---|---|
+| Hardware Description Language | Verilog |
+| Simulation | Icarus Verilog |
+| Waveform Analysis | GTKWave |
+| Development Environment | Visual Studio Code |
+| Version Control | Git and GitHub |
+| Operating System | Ubuntu Linux |
 
-The testbench generates `waves/gpio_demo.vcd`, which can be inspected using GTKWave.
 
 
