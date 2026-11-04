@@ -214,7 +214,7 @@ gtkwave waves/gpio_demo.vcd
 
 The simulation testbenches generate VCD waveform files in the `waves/` directory for inspection using GTKWave.
 
-```
+
 ## 🛠️ Tools & Technologies
 
 | Category | Tools |
