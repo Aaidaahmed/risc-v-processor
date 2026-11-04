@@ -25,7 +25,6 @@ The processor uses a single-cycle datapath with instruction fetch, decode, execu
 
 ![RV32I RISC-V Processor Architecture](docs/images/cpu_architecture.png)
 
-> **Note:** The architecture diagram is a work in progress and will be refined to improve signal routing, arrow clarity, and alignment with the RTL implementation.
 
 ## 🎬 Demo: Load Word Instruction
 
@@ -80,22 +79,6 @@ risc-v-processor/
 │   ├── program_counter_tb.v
 │   ├── register_file_tb.v
 │   └── ...
-├── sim/
-│   ├── cpu_test
-│   ├── gpio_demo
-│   ├── regression.log
-│   └── ...
-├── waves/
-│   ├── cpu.vcd
-│   ├── gpio_demo.vcd
-│   ├── alu.vcd
-│   ├── decoder.vcd
-│   ├── data_memory.vcd
-│   ├── instruction_memory.vcd
-│   ├── program_counter.vcd
-│   ├── register_file.vcd
-│   ├── immediate_generator.vcd
-│   └── cpu_execution.gtkw
 ├── docs/
 │   ├── demo/
 │   │   ├── lw_instruction_journey.gif
@@ -123,8 +106,6 @@ risc-v-processor/
 | `rtl/` | Processor datapath, control, memory, GPIO and custom execution RTL |
 | `include/` | Shared processor definitions and constants |
 | `tb/` | Module-level and CPU-level Verilog testbenches |
-| `sim/` | Compiled simulation executables and regression logs |
-| `waves/` | Generated VCD files and GTKWave session files |
 | `docs/` | Architecture diagrams, simulation waveforms and demonstration GIFs |
 
 ## 🧪 Verification & Testing
@@ -133,7 +114,7 @@ The processor is verified using Verilog testbenches, automated functional checks
 
 ### ✅ Instruction Regression Testing
 
-The main CPU regression testbench exercises the implemented instruction set and checks expected processor behavior.
+The main CPU regression testbench runs automated functional checks against the implemented processor behavior.
 
 **Regression results:**
 - **61 checks passed**
@@ -217,6 +198,8 @@ vvp sim/cpu_test
 ### GPIO Demonstration
 
 ```bash
+mkdir -p sim
+
 iverilog -g2012 -I include -s gpio_demo_tb \
   -o sim/gpio_demo rtl/*.v tb/gpio_demo_tb.v
 
@@ -231,11 +214,6 @@ gtkwave waves/gpio_demo.vcd
 
 The simulation testbenches generate VCD waveform files in the `waves/` directory for inspection using GTKWave.
 
-### ▶️ Run the Focused Demonstration
-
-```bash
-iverilog -g2012 -I include -s gpio_demo_tb \
-  -o sim/gpio_demo rtl/*.v tb/gpio_demo_tb.v && vvp sim/gpio_demo
 ```
 ## 🛠️ Tools & Technologies
 
