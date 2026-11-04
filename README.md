@@ -195,3 +195,81 @@ The processor uses a single-cycle datapath with instruction fetch, decode, execu
 > **Note:** The architecture diagram is a work in progress and will be refined to improve signal routing, arrow clarity, and alignment with the RTL implementation.
 
 
+## 🧪 Verification & Testing
+
+The processor is verified using Verilog testbenches, automated functional checks, and GTKWave simulation traces. Verification covers instruction execution, memory operations, custom MAC functionality, memory-mapped GPIO, and performance counters.
+
+### ✅ Instruction Regression Testing
+
+The main CPU regression testbench exercises the implemented instruction set and checks expected processor behavior.
+
+**Regression results:**
+- **61 checks passed**
+- **0 failures**
+
+Run the regression testbench:
+
+```bash
+iverilog -g2012 -I include -s cpu_tb \
+  -o sim/cpu_test rtl/*.v tb/cpu_tb.v && vvp sim/cpu_test
+```
+
+### 🔌 Memory-Mapped GPIO Verification
+
+A focused CPU demonstration verifies memory-mapped GPIO writes alongside load execution and other processor operations.
+
+The test program produces the following GPIO output sequence:
+
+**`1 → 3 → 7 → 0`**
+
+The waveform shows GPIO output updates during processor execution.
+
+![GPIO output waveform](docs/images/gpio_demo_waveform.png)
+
+### 🧮 Custom MAC Instruction Verification
+
+The processor supports a custom multiply-accumulate instruction that computes:
+
+**`rd_new = rd_old + (rs1 × rs2)`**
+
+The focused testbench verifies the following operation:
+
+- First source operand: `2`
+- Second source operand: `3`
+- Previous destination value: `4`
+- Computed result: `4 + (2 × 3) = 10`
+- Destination register: `x6`
+
+The simulation confirms that `x6 = 10`.
+
+![Custom MAC instruction waveform](docs/images/mac_waveform.png)
+
+### 📊 Performance Counter Verification
+
+The processor includes internal counters that track execution activity. The focused testbench checks the load, store, branch, and MAC counters and reports the following values:
+
+| Performance Metric | Observed Count |
+|---|---:|
+| Clock cycles | 24 |
+| Instructions | 24 |
+| Load operations | 1 |
+| Store operations | 4 |
+| Taken branches | 1 |
+| MAC operations | 1 |
+
+The waveform illustrates the counters incrementing during program execution.
+
+![Performance counter waveform](docs/images/performance_counters.png)
+
+### ▶️ Run the Focused Demonstration
+
+```bash
+iverilog -g2012 -I include -s gpio_demo_tb \
+  -o sim/gpio_demo rtl/*.v tb/gpio_demo_tb.v && vvp sim/gpio_demo
+```
+
+**Simulation result:** `CPU + GPIO DEMO PASSED`
+
+The testbench generates `waves/gpio_demo.vcd`, which can be inspected using GTKWave.
+
+

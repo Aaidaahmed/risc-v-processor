@@ -1,16 +1,18 @@
-digraph CPU {
+
+digraph RV32I {
     graph [
         label="RV32I RISC-V PROCESSOR",
         labelloc=t,
-        fontsize=22,
+        fontsize=26,
         fontname="Arial Bold",
-        fontcolor="#172554",
-        bgcolor="white",
-        pad=0.3,
-        nodesep=0.35,
-        ranksep=0.55,
+        fontcolor="#1B2B59",
         rankdir=TB,
-        splines=polyline,
+        splines=ortho,
+        nodesep=0.48,
+        ranksep=0.72,
+        pad=0.3,
+        bgcolor="white",
+        compound=true,
         newrank=true
     ];
 
@@ -19,135 +21,138 @@ digraph CPU {
         style="rounded,filled",
         fontname="Arial",
         fontsize=11,
+        color="#718096",
         fontcolor="#172033",
-        color="#CBD5E1",
-        penwidth=1.2,
+        penwidth=1.5,
         margin="0.18,0.12"
     ];
 
     edge [
-        color="#64748B",
-        penwidth=1.2,
-        arrowsize=0.7,
         fontname="Arial",
         fontsize=9,
-        fontcolor="#475569"
+        color="#64748B",
+        fontcolor="#475569",
+        arrowsize=0.7,
+        penwidth=1.25
     ];
 
     subgraph cluster_fetch {
         label="1. INSTRUCTION FETCH";
-        fontname="Arial Bold";
-        fontsize=12;
-        fontcolor="#1D4ED8";
-        color="#93C5FD";
+        color="#82B5FF";
+        fontcolor="#2458B5";
         style="rounded,filled";
-        fillcolor="#EFF6FF";
+        fillcolor="#F0F6FF";
+        penwidth=1.5;
 
-        PC [label="Program Counter\nPC + 4 / next PC",
-            fillcolor="#DBEAFE", color="#60A5FA"];
-        IM [label="Instruction Memory\n(IM)",
-            fillcolor="#DBEAFE", color="#60A5FA"];
+        PC [label="Program Counter\nPC / next PC",
+            fillcolor="#DCEBFF", color="#5798FF"];
+        IM [label="Instruction Memory\n(IM)", fillcolor="#DCEBFF",
+            color="#5798FF"];
 
         PC -> IM [label="fetch address"];
     }
 
     subgraph cluster_decode {
         label="2. DECODE & OPERANDS";
-        fontname="Arial Bold";
-        fontsize=12;
-        fontcolor="#6D28D9";
-        color="#C4B5FD";
+        color="#BFA8FF";
+        fontcolor="#7844C7";
         style="rounded,filled";
-        fillcolor="#F5F3FF";
+        fillcolor="#F7F3FF";
+        penwidth=1.5;
 
-        DEC [label="Instruction Decoder\n(DEC)",
-             fillcolor="#EDE9FE", color="#A78BFA"];
-        RF [label="Register File\n(RF: rs1, rs2, rd)",
-            fillcolor="#EDE9FE", color="#A78BFA"];
-        IMM [label="Immediate Generator\n(IMM_GEN)",
-             fillcolor="#EDE9FE", color="#A78BFA"];
-        MUX [label="Operand Selection\nPC / Register / Immediate",
-             fillcolor="#DDD6FE", color="#8B5CF6"];
+        DEC [label="Instruction Decoder\nControl signals",
+             fillcolor="#EEE5FF", color="#A184FF"];
+        RF [label="Register File\nrs1 · rs2 · old rd",
+            fillcolor="#EEE5FF", color="#A184FF"];
+        IMM [label="Immediate Generator\nSign-extended immediate",
+             fillcolor="#EEE5FF", color="#A184FF"];
+        OP [label="Operand Selection\nPC / Register / Immediate",
+            fillcolor="#DFD4FF", color="#895BFF"];
 
-        { rank=same; RF; IMM; }
         DEC -> RF [label="register indices"];
         DEC -> IMM [label="immediate fields"];
-        RF -> MUX [label="register values"];
-        IMM -> MUX [label="immediate"];
+        RF -> OP [label="register values"];
+        IMM -> OP [label="immediate"];
     }
 
     subgraph cluster_execute {
         label="3. EXECUTION & CONTROL";
-        fontname="Arial Bold";
-        fontsize=12;
-        fontcolor="#0F766E";
-        color="#99F6E4";
+        color="#75EAD8";
+        fontcolor="#087F70";
         style="rounded,filled";
         fillcolor="#F0FDFA";
+        penwidth=1.5;
 
         ALU [label="Arithmetic Logic Unit\n(ALU)",
-             fillcolor="#CCFBF1", color="#5EEAD4"];
-        BR [label="Branch Unit\n(BU)",
-            fillcolor="#CCFBF1", color="#5EEAD4"];
-        MAC [label="Custom MAC Unit\n(Multiply-Accumulate)",
-             fillcolor="#CCFBF1", color="#5EEAD4"];
+             fillcolor="#D5F8F0", color="#2DD4BF"];
+        BU [label="Branch Unit\n(BU)",
+            fillcolor="#D5F8F0", color="#2DD4BF"];
+        MAC [label="Custom MAC Unit\nrd + (rs1 × rs2)",
+             fillcolor="#D5F8F0", color="#2DD4BF"];
 
-        { rank=same; ALU; BR; MAC; }
+        { rank=same; ALU; BU; MAC; }
     }
 
     subgraph cluster_memory {
         label="4. MEMORY & PERIPHERALS";
-        fontname="Arial Bold";
-        fontsize=12;
-        fontcolor="#92400E";
-        color="#FCD34D";
+        color="#FFC247";
+        fontcolor="#A84A00";
         style="rounded,filled";
         fillcolor="#FFFBEB";
+        penwidth=1.5;
 
         DM [label="Data Memory\nByte / Halfword / Word",
-            fillcolor="#FEF3C7", color="#FBBF24"];
+            fillcolor="#FFF0C7", color="#FFB000"];
         GPIO [label="Memory-Mapped GPIO\n0x10000000 / 0x10000004",
-            fillcolor="#FEF3C7", color="#FBBF24"];
+            fillcolor="#FFF0C7", color="#FFB000"];
 
         { rank=same; DM; GPIO; }
     }
 
     subgraph cluster_writeback {
         label="5. WRITE-BACK & MONITORING";
-        fontname="Arial Bold";
-        fontsize=12;
-        fontcolor="#9D174D";
-        color="#F9A8D4";
+        color="#FF8AC0";
+        fontcolor="#B72D69";
         style="rounded,filled";
-        fillcolor="#FDF2F8";
+        fillcolor="#FFF4F9";
+        penwidth=1.5;
 
-        WB [label="Write-Back Mux\nALU / Memory / PC+4 / Imm / MAC",
-            fillcolor="#FCE7F3", color="#F472B6"];
-        CSR [label="Performance Counters\nCycle / Inst / Load / Store / Branch / MAC",
-             fillcolor="#FCE7F3", color="#F472B6"];
+        WB [label="Write-Back Selection\nALU / Memory / PC+4 / Immediate / MAC",
+            fillcolor="#FFE0EE", color="#FF55A5"];
+        CSR [label="Performance Counters\nCycle / Instruction / Load / Store / Branch / MAC",
+            fillcolor="#FFE0EE", color="#FF55A5"];
 
         { rank=same; WB; CSR; }
     }
 
     IM -> DEC [label="instruction"];
-    MUX -> ALU [label="operands"];
-    MUX -> BR [label="branch operands"];
-    RF -> MAC [label="MAC operands", constraint=false];
-
-    ALU -> DM [label="address / store data"];
-    ALU -> GPIO [label="MMIO access", constraint=false];
-
-    ALU -> WB [label="ALU result"];
+    OP -> ALU [label="operands"];
+    RF -> BU [label="branch operands"];
+    RF -> MAC [label="rs1 · rs2 · old rd"];
+    ALU -> DM [label="effective address / store data"];
+    ALU -> GPIO [label="MMIO address selection"];
     DM -> WB [label="load data"];
-    GPIO -> WB [label="read data"];
+    GPIO -> WB [label="GPIO read data"];
+    ALU -> WB [label="ALU result"];
     MAC -> WB [label="MAC result"];
+    PC -> WB [label="PC + 4"];
+    IMM -> WB [label="upper immediate"];
 
-    WB -> RF [label="write-back", constraint=false];
-    BR -> PC [label="next PC", constraint=false];
-    PC -> WB [label="PC + 4", constraint=false];
-    IMM -> WB [label="upper immediate", constraint=false];
+    WB -> RF [label="register write-back",
+              color="#0F9D78", fontcolor="#0F8064",
+              constraint=false, minlen=2];
 
-    DEC -> MAC [label="custom operation", style=dashed, constraint=false];
-    DEC -> CSR [label="instruction events", style=dashed, color="#BE185D"];
-    PC -> CSR [label="clock / reset context", style=dashed, color="#BE185D"];
+    BU -> PC [label="branch decision",
+              style=dashed, color="#D9468C",
+              constraint=false, minlen=4];
+
+    DEC -> PC [label="jump control",
+               style=dashed, color="#D9468C",
+               constraint=false, minlen=4];
+
+    DEC -> CSR [label="instruction events",
+                style=dashed, color="#D9468C",
+                constraint=false];
+
+    { rank=same; PC; }
 }
